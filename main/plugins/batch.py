@@ -80,9 +80,9 @@ async def _batch(event):
 async def run_batch(userbot, client, sender, link, _range):
     for i in range(_range):
         timer = 60
-        if i < 250:
+        if i < 25:
             timer = 5
-        if i < 1000 and i > 250:
+        if i < 1000 and i > 25:
             timer = 10
         if i < 10000 and i > 1000:
             timer = 15
