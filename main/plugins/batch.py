@@ -82,11 +82,11 @@ async def run_batch(userbot, client, sender, link, _range):
     for i in range(_range):
         timer = 60
         if i < 25:
-            timer = random.uniform(2, 15)  # Random delay between 2 and 15 seconds
+            timer = random.uniform(2, 10)  # Random delay between 2 and 15 seconds
         if i < 1000 and i > 25:
-            timer = random.uniform(10, 30)  # Random delay between 10 and 30 seconds
+            timer = random.uniform(5, 30)  # Random delay between 10 and 30 seconds
         if i < 10000 and i > 1000:
-            timer = random.uniform(30, 60)  # Random delay between 30 and 60 seconds
+            timer = random.uniform(20, 60)  # Random delay between 30 and 60 seconds
         if not 't.me/c/' in link:
             if i < 25:
                 timer = 2
@@ -103,10 +103,10 @@ async def run_batch(userbot, client, sender, link, _range):
         try:
             await get_bulk_msg(userbot, client, sender, link, i) 
         except FloodWait as fw:
-            if int(fw.value) > 299999:
+            if int(fw.value) > 14400:
                 await client.send_message(sender, "Cancelling batch since you have floodwait more than 5 minutes.")
                 break
-            await asyncio.sleep(fw.value + random.uniform(5, 10))  # Random delay after FloodWait
+            await asyncio.sleep(fw.value + random.uniform(5, 60))  # Random delay after FloodWait
             await get_bulk_msg(userbot, client, sender, link, i)
         protection = await client.send_message(sender, f"Sleeping for `{timer:.2f}` seconds to avoid Floodwaits and Protect account!")
         await asyncio.sleep(timer)
