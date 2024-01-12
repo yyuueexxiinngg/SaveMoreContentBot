@@ -83,10 +83,28 @@ async def run_batch(userbot, client, sender, link, _range):
         timer = 60
         if i < 25:
             timer = random.uniform(2, 10)  # Random delay between 2 and 15 seconds
-        if i < 1000 and i > 25:
-            timer = random.uniform(5, 30)  # Random delay between 10 and 30 seconds
-        if i < 10000 and i > 1000:
-            timer = random.uniform(20, 60)  # Random delay between 30 and 60 seconds
+        if i < 100 and i > 25:
+            timer = random.uniform(5, 15)  # Random delay between 10 and 30 seconds
+        if i < 200 and i > 100:
+            timer = random.uniform(25, 35) # Random delay between 30 and 60 seconds
+        if i < 300 and i > 200:
+            timer = random.uniform(10, 20)
+        if i < 400 and i > 300:
+            timer = random.uniform(30, 45)
+        if i < 500 and i > 400:
+            timer = random.uniform(22, 28)
+        if i < 600 and i > 500:
+            timer = random.uniform(2, 10)
+        if i < 700 and i > 600:
+            timer = random.uniform(25, 40)
+        if i < 800 and i > 700:
+            timer = random.uniform(15, 20)
+        if i < 900 and i > 800:
+            timer = random.uniform(45, 60)
+        if i < 1000 and i > 900:
+            timer = random.uniform(5, 12)
+        if i > 1000:
+            timer = random.uniform(2, 60)
         if not 't.me/c/' in link:
             if i < 25:
                 timer = 2
