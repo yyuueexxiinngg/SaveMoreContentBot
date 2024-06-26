@@ -65,7 +65,8 @@ def parse_chat_id_from_link(link):
         if 't.me/c/' in link:
             chat_id = int('-100' + parts[-2])
         else:
-            chat_id = parts[-2]  # or any other logic to extract chat_id
+            # Handle other formats or raise an error if the format is unexpected
+            raise ValueError("Invalid link format for extracting chat ID")
         return chat_id
     except ValueError:
         # Handle cases where the link does not contain a valid integer part
