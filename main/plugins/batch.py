@@ -65,10 +65,7 @@ async def _batch(event):
 def parse_chat_id_from_link(link):
     try:
         parts = link.split("/")
-        if 't.me/c/' in link:
-            chat_id_str = parts[-2]
-            chat_id = (chat_id_str)
-        elif 't.me/' in link and not 't.me/c/' in link:
+        if 't.me/' in link:
             # Handling user link
             chat_id = parts[-2]
         else:
