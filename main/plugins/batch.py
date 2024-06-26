@@ -62,20 +62,16 @@ async def _batch(event):
         await conv.cancel()
         batch.clear()
 
-def parse_chat_id_from_link(link):
+def parse_message_id_from_link(link):
     try:
-        parts = link.split("/")
-        if 't.me/c/' in link:
-            chat_id = parts[-2]  # Take the chat ID as it is
-        elif 't.me/' in link and not 't.me/c/' in link:
-            # Handling user link
-            chat_id = parts[-2]
-        else:
-            raise ValueError("Invalid link format for extracting chat ID")
-        return chat_id
-    except ValueError as e:
-        logger.error(f"Error parsing chat ID from link '{link}': {e}")
-        raise ValueError("Invalid chat ID in link")
+        # Assuming the link format is https://t.me/c/1635107642/6
+        parts = link.split('/')
+        message_id = int(parts[-1])
+        chat_id = -1001635107642
+        return chat_id, message_id
+    except (ValueError, IndexError) as e:
+        logger.error(f"Error parsing message ID from link '{link}': {e}")
+        raise ValueError("Invalid message link")
 
 async def run_batch(userbot, client, sender, link, _range):
     for i in range(_range):
@@ -118,14 +114,16 @@ async def run_batch(userbot, client, sender, link, _range):
             break
 
         try:
-            await get_bulk_msg(userbot, client, sender, link, i)
+            chat_id, message_id = parse_message_id_from_link(link)
+            await get_bulk_msg(userbot, client, sender, chat_id, message_id + i)
         except FloodWait as fw:
             if int(fw.value) > 300:  # 300 seconds = 5 minutes
                 await client.send_message(sender, "Cancelling batch since you have a floodwait more than 5 minutes.")
                 break
             await asyncio.sleep(fw.value + random.uniform(5, 60))
-            await get_bulk_msg(userbot, client, sender, link, i)
+            await get_bulk_msg(userbot, client, sender, chat_id, message_id + i)
 
         protection = await client.send_message(sender, f"Sleeping for `{timer:.2f}` seconds to avoid Floodwaits and protect account!")
         await asyncio.sleep(timer)
         await protection.delete()
+
