@@ -1,6 +1,7 @@
 import time
 import asyncio
 import random  # Import the random module
+import logging
 
 from .. import bot as Drone, userbot, Bot, AUTH, FORCESUB as fs
 from main.plugins.pyroplug import get_bulk_msg
@@ -11,6 +12,9 @@ from ethon.telefunc import force_sub
 
 ft = f"To use this bot you've to join @{fs}."
 batch = []
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @Drone.on(events.NewMessage(incoming=True, from_users=AUTH, pattern='/cancel'))
 async def cancel(event):
@@ -63,13 +67,13 @@ def parse_chat_id_from_link(link):
         # Attempt to parse the chat ID from the link
         parts = link.split("/")
         if 't.me/c/' in link:
-            chat_id = int('-100' + parts[-2])
+            chat_id_str = parts[-2]
+            chat_id = int('-100' + ''.join(filter(str.isdigit, chat_id_str)))
         else:
-            # Handle other formats or raise an error if the format is unexpected
             raise ValueError("Invalid link format for extracting chat ID")
         return chat_id
-    except ValueError:
-        # Handle cases where the link does not contain a valid integer part
+    except ValueError as e:
+        logger.error(f"Error parsing chat ID from link '{link}': {e}")
         raise ValueError("Invalid chat ID in link")
 
 async def run_batch(userbot, client, sender, link, _range):
@@ -108,7 +112,7 @@ async def run_batch(userbot, client, sender, link, _range):
                 await client.send_message(sender, "Batch completed.")
                 break
         except Exception as e:
-            print(e)
+            logger.error(f"Error during batch completion check: {e}")
             await client.send_message(sender, "Batch completed.")
             break
 
