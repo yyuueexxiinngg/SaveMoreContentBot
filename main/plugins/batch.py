@@ -67,7 +67,7 @@ def parse_chat_id_from_link(link):
         parts = link.split("/")
         if 't.me/c/' in link:
             chat_id_str = parts[-2]
-            chat_id = int('-100' + chat_id_str)
+            chat_id = (chat_id_str)
         elif 't.me/' in link and not 't.me/c/' in link:
             # Handling user link
             chat_id = parts[-2]
