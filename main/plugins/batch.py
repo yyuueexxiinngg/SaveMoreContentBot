@@ -58,6 +58,19 @@ async def _batch(event):
         await conv.cancel()
         batch.clear()
 
+def parse_chat_id_from_link(link):
+    try:
+        # Attempt to parse the chat ID from the link
+        parts = link.split("/")
+        if 't.me/c/' in link:
+            chat_id = int('-100' + parts[-2])
+        else:
+            chat_id = parts[-2]  # or any other logic to extract chat_id
+        return chat_id
+    except ValueError:
+        # Handle cases where the link does not contain a valid integer part
+        raise ValueError("Invalid chat ID in link")
+
 async def run_batch(userbot, client, sender, link, _range):
     for i in range(_range):
         timer = 60
@@ -99,13 +112,17 @@ async def run_batch(userbot, client, sender, link, _range):
             break
 
         try:
-            await get_bulk_msg(userbot, client, sender, link, i)
+            chat_id = parse_chat_id_from_link(link)
+            await get_bulk_msg(userbot, client, sender, link, chat_id, i)
+        except ValueError as e:
+            await client.send_message(sender, f"Error: {e}")
+            break
         except FloodWait as fw:
             if int(fw.value) > 300:  # 300 seconds = 5 minutes
                 await client.send_message(sender, "Cancelling batch since you have a floodwait more than 5 minutes.")
                 break
             await asyncio.sleep(fw.value + random.uniform(5, 60))
-            await get_bulk_msg(userbot, client, sender, link, i)
+            await get_bulk_msg(userbot, client, sender, link, chat_id, i)
 
         protection = await client.send_message(sender, f"Sleeping for `{timer:.2f}` seconds to avoid Floodwaits and protect account!")
         await asyncio.sleep(timer)
