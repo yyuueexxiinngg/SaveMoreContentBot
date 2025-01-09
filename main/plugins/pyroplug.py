@@ -14,8 +14,9 @@ def thumbnail(sender):
 
 MEDIA_GROUP = []
 FILES = []
+THUMB_PATHS= []
 
-async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i, _range=None):
+async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i, _range=-1):
     if _range and i == 0:
         MEDIA_GROUP.clear()
 
@@ -58,6 +59,12 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i, _range=Non
                 print(data)
                 height, width, duration = data["height"], data["width"], data["duration"]
                 thumb_path = await screenshot(file, duration, sender) or None
+                if thumb_path:
+                    THUMB_PATHS.append(thumb_path)
+
+                if os.path.isfile(file):
+                    print(f"File Exists: {file}")
+                print(_range)
                 if _range > 1:
                     MEDIA_GROUP.append(
                         InputMediaVideo(file, caption=caption, supports_streaming=True, height=height, width=width,duration=duration, thumb=thumb_path)
@@ -66,6 +73,7 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i, _range=Non
                 else:
                     print("Sending Video")
                     await client.send_video(sender, file, caption=caption, supports_streaming=True, height=height, width=width, duration=duration, thumb=thumb_path, progress=progress_for_pyrogram, progress_args=(client, '**UPLOADING:**\n', edit, time.time()))
+                    print("Sent Video")
             elif msg.media == MessageMediaType.PHOTO:
                 # await bot.send_file(sender, file, caption=caption)
                 if _range > 1:
@@ -75,6 +83,8 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i, _range=Non
                     await bot.send_file(sender, file, caption=caption)
             else:
                 thumb_path = thumbnail(sender)
+                if thumb_path:
+                    THUMB_PATHS.append(thumb_path)
                 if _range > 1:
                     MEDIA_GROUP.append(InputMediaDocument(file, caption=caption, thumb=thumb_path))
                     FILES.append(file)
@@ -83,9 +93,8 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i, _range=Non
 
             if not _range > 1:
                 os.remove(file) if os.path.isfile(file) else None
+                os.remove(thumb_path) if os.path.isfile(thumb_path) else None
             await edit.delete()
-
-            print(f"Current Media Group Length: {len(MEDIA_GROUP)}, Current Files Length: {len(FILES)}, Current i: {i}, Current Range: {_range}")
 
             if len(MEDIA_GROUP) == 10 or i == _range - 1:
                 if len(MEDIA_GROUP) > 1:
@@ -101,6 +110,8 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i, _range=Non
                 MEDIA_GROUP.clear()
                 for file in FILES:
                     os.remove(file) if os.path.isfile(file) else None
+                for thumb in THUMB_PATHS:
+                    os.remove(thumb) if os.path.isfile(thumb) else None
                 FILES.clear()
 
         except (ChannelBanned, ChannelInvalid, ChannelPrivate, ChatIdInvalid, ChatInvalid):
